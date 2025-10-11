@@ -1,0 +1,22 @@
+Package: measureQ
+Type: Package
+Title: Report Reliability, Convergent and Discriminant Validity with Sampling Error
+Version: 1.6.1
+Author: Gordon W. Cheung (University of Auckland)
+Maintainer: Gordon Cheung <gordon.cheung@auckland.ac.nz>
+Description: Reports construct reliability with confidence intervals
+    Reports Average Variance Extracted (AVE) with confidence intervals
+    Reports standardized factor loadings with confidence intervals
+    Reports correlation coefficients among latent variables with confidence intervals
+    Test if AVEs higher than square of correlation coefficient
+Depends: R (>= 3.5.1),
+         lavaan (>= 0.6-5),
+         openxlsx (>= 4.2.5.2),
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Imports:
+    lavaan (>= 0.6-5),
+    openxlsx (>= 4.2.5.2),
+
+
