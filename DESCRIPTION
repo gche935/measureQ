@@ -1,7 +1,7 @@
 Package: measureQ
 Type: Package
 Title: Report Reliability, Convergent and Discriminant Validity with Sampling Error
-Version: 1.6.1
+Version: 1.6.0
 Author: Gordon W. Cheung (University of Auckland)
 Maintainer: Gordon Cheung <gordon.cheung@auckland.ac.nz>
 Description: Reports construct reliability with confidence intervals
