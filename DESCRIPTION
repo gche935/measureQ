@@ -4,11 +4,8 @@ Title: Report Reliability, Convergent and Discriminant Validity with Sampling Er
 Version: 1.6.0
 Author: Gordon W. Cheung (University of Auckland)
 Maintainer: Gordon Cheung <gordon.cheung@auckland.ac.nz>
-Description: Reports construct reliability with confidence intervals
-    Reports Average Variance Extracted (AVE) with confidence intervals
-    Reports standardized factor loadings with confidence intervals
-    Reports correlation coefficients among latent variables with confidence intervals
-    Test if AVEs higher than square of correlation coefficient
+Description: 1. The significance tests are based on the type of confidence intervals chosen. 2. Missing values are handled with full-information maximum likelihood. 3. No cross-loading or correlated indicator residuals is allowed. 4. Second-order factors should be defined after all first-order factors in the model. 5. For second-order factor, omegaT shows the overall reliability of the first-order factors, omegaH shows the reliability of the second-order factor. 6. Before generating the outputs, bootstrapped samples with improper solutions (non-convergence, negative variance, and correlation greater than 1) are removed.
+  Citation: Cheung, G. W., Cooper-Thomas, H. D., Lau, R.S., & Wang, L. C. (2023). Reporting reliability, convergent and discriminant validity with structural equation modeling: A review and best-practice recommendations. Asia Pacific Journal of Management, 41(2), 745-783. DOI: 10.1007/s10490-023-09871-y
 Depends: R (>= 3.5.1),
          lavaan (>= 0.6-5),
          openxlsx (>= 4.2.5.2),
@@ -18,5 +15,4 @@ LazyData: true
 Imports:
     lavaan (>= 0.6-5),
     openxlsx (>= 4.2.5.2),
-
-
+RoxygenNote: 7.3.3

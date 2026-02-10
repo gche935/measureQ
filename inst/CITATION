@@ -1,0 +1,11 @@
+bibentry(
+  bibtype = "Article",
+  title = "Reporting reliability, convergent and discriminant validity with structural equation modeling: A review and best-practice recommendations.",
+  author = "Cheung, G. W., Cooper-Thomas, H. D., Lau, R.S., & Wang, L. C.",
+  journal = "Asia Pacific Journal of Management",
+  year = 2024,
+  volume = 41,
+  number = 2,
+  pages = 745-783,
+  doi = "https://doi.org/10.1007/s10490-023-09871-y"
+)
