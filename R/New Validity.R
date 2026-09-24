@@ -146,6 +146,7 @@
 measureQ <- function(model, data.source, b.no=1000, cluster="NULL", CI="PCI", omega="omegaH", R.decimal=3, HTMT="FALSE") {
 
 options("width"=210)
+options(max.print=10000)
 
 match.arg(omega, c("omegaH","omegaT"))
 match.arg(HTMT, c("FALSE","TRUE"))
