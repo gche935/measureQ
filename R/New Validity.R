@@ -8,6 +8,11 @@
 #'
 #' Bootstrap percentile and bias-corrected confidence intervals for: construct reliability, standardized factor loadings, Average Variance Extracted (AVE), comparing AVE with square correlation coefficients, and disattenuated correlation.
 #'
+#' 1. The significance tests are based on the type of confidence intervals chosen. 2. Missing values are handled with full-information maximum likelihood. 3. No cross-loading or correlated indicator residuals is allowed. 4. Second-order factors should be defined after all first-order factors in the model. 5. For second-order factor, omegaT shows the overall reliability of the first-order factors, omegaH shows the reliability of the second-order factor. 6. Before generating the outputs, bootstrapped samples with improper solutions (non-convergence, negative variance, and correlation greater than 1) are removed.
+#'
+#' Citation: Cheung, G. W., Cooper-Thomas, H. D., Lau, R.S., & Wang, L. C. (2023). Reporting reliability, convergent and discriminant validity with structural equation modeling: A review and best-practice recommendations. Asia Pacific Journal of Management, 41(2), 745-783. DOI: 10.1007/s10490-023-09871-y
+#'
+#'
 #' @param model User specified CFA model
 #' @param data.source A data frame containing the observed variables used in the model.
 #' @param b.no Number of bootstrap samples, must be between 200 and 5,000. Default is 1,000.
@@ -23,7 +28,7 @@
 #'
 #' # ===== Example A (Basic Model)
 #' Data simulated from Yu, M., Lin, H., Wang, G. G., Liu, Y., & Zheng, X. (2022). Is too much as bad
-#' as too little? The S-curve relationship between corporate philanthropy and employee performance. 
+#' as too little? The S-curve relationship between corporate philanthropy and employee performance.
 #' Asia Pacific Journal of Management, 39, 1511-1534. https://doi.org/10.1007/s10490-021-09775-9.
 #'
 #' # Specify the model (Model.A) for standardized coefficients
@@ -41,7 +46,7 @@
 #'
 #' # ===== Example B (Model with a Single-Item Factor):
 #' Data simulated from Zahoor, N., Khan, H., Khan, Z., & Akhtar, P. (2024). Responsible innovation
-#' in emerging markets’ SMEs: The role of alliance learning and absorptive capacity. Asia Pacific 
+#' in emerging markets’ SMEs: The role of alliance learning and absorptive capacity. Asia Pacific
 #' Journal of Management, 41, 1175-1209. https://doi:10.1007/s10490-022-09843-8
 #' IAPD is a single indicator variable in this example
 #' For single indicator: factor loading = 1; residuals = (1 - reliability)*observed variance
@@ -64,9 +69,9 @@
 #'
 #'
 #' # ===== Example C (Model with Higher-Order Factors):
-#' Data simulated from Lythreatis, S., El-Kassar, A., Smart, P., & Ferraris, A. (2024). 
+#' Data simulated from Lythreatis, S., El-Kassar, A., Smart, P., & Ferraris, A. (2024).
 #' Participative leadership, ethical climate and responsible innovation perceptions: evidence
-#' from South Korea. Asia-Pacific Journal of Management, 41, 1285-1312. 
+#' from South Korea. Asia-Pacific Journal of Management, 41, 1285-1312.
 #' http://doi: 10.1007/s10490-022-09856-3
 #'
 #' All second-order factors should be defined after all first-order factors in the model.
@@ -91,8 +96,8 @@
 #'
 #'
 #' # ===== Example D (Model with High-Order Factor):
-#' Data simulated from Way, S. A., Tracey, J. B., Fay, C. H., Wright, P. M., Snell, S. A., 
-#' Chang, S., & Gong, Y. (2015). Validation of a multidimensional HR flexibility measure. 
+#' Data simulated from Way, S. A., Tracey, J. B., Fay, C. H., Wright, P. M., Snell, S. A.,
+#' Chang, S., & Gong, Y. (2015). Validation of a multidimensional HR flexibility measure.
 #' Journal of Management, 41, 1098-1131.
 #' All second-order factors should be defined after all first-order factors in the model.
 #'
@@ -403,14 +408,27 @@ if (HTMT == "TRUE"){
 Model.EST2 <- lavaan::cfa(model, data = data.source, missing = "fiml", se = "none", test = "none", check.start = FALSE, check.post = FALSE, check.gradient = FALSE)
 
 # ===== Bootstrapping
-if (cluster == "NULL") {
-  # Nonparametric Bootstrapping
-  bootcoef <- lavaan::bootstrapLavaan(Model.EST2, R = b.no, FUN = myFUN, parallel="snow")
-} else {
-  # Parametric Bootstrapping when cluster != "NULL"
-  bootcoef <- lavaan::bootstrapLavaan(Model.EST2, R = b.no, FUN = myFUN, parallel="snow", type = "parametric")
+if (.Platform$OS.type == "windows") {
+  if (cluster == "NULL") {
+    # Nonparametric Bootstrapping
+    bootcoef <- lavaan::bootstrapLavaan(Model.EST2, R = b.no, FUN = myFUN, parallel="snow",
+                                        ncpus = max(2L, parallel::detectCores(logical = FALSE) - 2L, na.rm = TRUE))
+  } else {
+    # Parametric Bootstrapping when cluster != "NULL"
+    bootcoef <- lavaan::bootstrapLavaan(Model.EST2, R = b.no, FUN = myFUN, parallel="snow",
+                                        ncpus = max(2L, parallel::detectCores(logical = FALSE) - 2L, na.rm = TRUE), type = "parametric")
+  }
+} else { #macOS
+  if (cluster == "NULL") {
+    # Nonparametric Bootstrapping
+    bootcoef <- lavaan::bootstrapLavaan(Model.EST2, R = b.no, FUN = myFUN, parallel="multicore",
+                                        ncpus = max(2L, parallel::detectCores(logical = FALSE) - 2L, na.rm = TRUE))
+  } else {
+    # Parametric Bootstrapping when cluster != "NULL"
+    bootcoef <- lavaan::bootstrapLavaan(Model.EST2, R = b.no, FUN = myFUN, parallel="multicore",
+                                        ncpus = max(2L, parallel::detectCores(logical = FALSE) - 2L, na.rm = TRUE), type = "parametric")
+  }
 }
-
 
 # ===== Remove bootstrap samples with standardized factor loading or correlation larger than 1
 for (r in 1: tot.fl) {
