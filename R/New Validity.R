@@ -143,7 +143,7 @@
 #' measureQ(Model.E, Data_E, cluster="leader")
 #'
 #'
-measureQ <- function(model, data.source, b.no=1000, cluster="NULL", CI="PCI", omega="omegaH", R.decimal=3, HTMT="FALSE") {
+measureQ <- function(model, data.source, b.no=1000, cluster=NULL, CI="PCI", omega="omegaH", R.decimal=3, HTMT="FALSE") {
 
 options("width"=210)
 options(max.print=10000)
@@ -207,7 +207,7 @@ if (b.no > 5000) stop("Bootstrap sample number greater than 5,000 is not recomme
 if (b.no < 500) stop("Bootstrap sample number smaller than 500 is not recommended")
 
 # Estimate model with MLR
-if (cluster == "NULL") {
+if (is.null(cluster)) {
   Model.EST1 <- lavaan::cfa(model, data.source, meanstructure=TRUE, estimator="MLR", missing="fiml")
 } else {
   Model.EST1 <- lavaan::cfa(model, data.source, meanstructure=TRUE, estimator="MLR", cluster=cluster, missing="fiml")
