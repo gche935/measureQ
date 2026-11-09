@@ -8,19 +8,19 @@
 #'
 #' Bootstrap percentile and bias-corrected confidence intervals for: construct reliability, standardized factor loadings, Average Variance Extracted (AVE), comparing AVE with square correlation coefficients, and disattenuated correlation.
 #'
-#' 1. The significance tests depend on the type of confidence interval chosen. 2. Missing values are handled with full-information maximum likelihood. 3. No cross-loading is allowed. 4. Second-order factors should be defined after all first-order factors in the model. 5. For second-order factors, omegaT shows the overall reliability of the first-order factors, and omegaH shows the reliability of the second-order factor. 6. Before generating the outputs, bootstrapped samples with improper solutions (non-convergence, negative variance, and correlation greater than 1) are removed.
+#' 1. The significance tests are based on the type of confidence intervals chosen. 2. Missing values are handled with full-information maximum likelihood. 3. No cross-loading or correlated indicator residuals is allowed. 4. Second-order factors should be defined after all first-order factors in the model. 5. For second-order factor, omegaT shows the overall reliability of the first-order factors, omegaH shows the reliability of the second-order factor. 6. Before generating the outputs, bootstrapped samples with improper solutions (non-convergence, negative variance, and correlation greater than 1) are removed.
 #'
 #' Citation: Cheung, G. W., Cooper-Thomas, H. D., Lau, R.S., & Wang, L. C. (2023). Reporting reliability, convergent and discriminant validity with structural equation modeling: A review and best-practice recommendations. Asia Pacific Journal of Management, 41(2), 745-783. DOI: 10.1007/s10490-023-09871-y
 #'
 #'
-#' @param model User-specified CFA model
+#' @param model User specified CFA model
 #' @param data.source A data frame containing the observed variables used in the model.
 #' @param b.no Number of bootstrap samples, must be between 200 and 5,000. Default is 1,000.
-#' @param cluster Cluster variable for nested data. Bootstrapping based on clusters (the default in lavaan) rather than raw data will be conducted for nested data.
-#' @param CI Confidence intervals will be used in the outputs. If "PCI", percentile confidence intervals will be used (default). If "BCCI" is specified, bias-corrected confidence intervals will be used.
-#' @param omega Type of omega used for construct reliability of second-order construct. If "omegaH", omega Hierarchical (default) will be used. If "omegaT", then "omega Total" will be used.
+#' @param cluster Cluster variable for nested data. Parametric bootstrapping instead of non-parametric bootstrapping will be conducted for nested data.
+#' @param CI Confidence intervals will be used in the outputs. If "PCI", percentile confidence intervals will be used (default). If "BCCI", biased-corrected confidence intervals will be used.
+#' @param omega Type of omega used for construct reliability of second-order construct. If "omegaH", omega Hierarchical (default) will be used. If "omegaT", omega Total will be used.
 #' @param R.decimal Number of decimal places in reports. Default is 3.
-#' @param HTMT If the corrected HeteroTrait-MonoTrait ratio, which is the disattenuated correlation coefficient, will be reported in Table 4. Henseler, Ringle, and Sarstedt’s (2015) HTMT equation is incorrect because the composite is calculated as the simple average of standardized item scores rather than the simple average of raw item scores.
+#' @param HTMT Heterotrait-monotrait ratio, which is the disattenuated correlation coefficient. Henseler, Ringle, and Sarstedt’s (2015) HTMT equation is incorrect, of which composite is formed by the simple average of standardized item scores instead of the simple average of item scores.
 #'
 #' @return measureQ.xlsx with all Tables
 #' @export
@@ -143,7 +143,7 @@
 #' measureQ(Model.E, Data_E, cluster="leader")
 #'
 #'
-measureQ <- function(model, data.source, b.no=1000, cluster=NULL, CI="PCI", omega="omegaH", R.decimal=3, HTMT="FALSE") {
+measureQ <- function(model, data.source, b.no=1000, cluster="NULL", CI="PCI", omega="omegaH", R.decimal=3, HTMT="FALSE") {
 
 options("width"=210)
 options(max.print=10000)
@@ -207,7 +207,7 @@ if (b.no > 5000) stop("Bootstrap sample number greater than 5,000 is not recomme
 if (b.no < 500) stop("Bootstrap sample number smaller than 500 is not recommended")
 
 # Estimate model with MLR
-if (is.null(cluster)) {
+if (cluster == "NULL") {
   Model.EST1 <- lavaan::cfa(model, data.source, meanstructure=TRUE, estimator="MLR", missing="fiml")
 } else {
   Model.EST1 <- lavaan::cfa(model, data.source, meanstructure=TRUE, estimator="MLR", cluster=cluster, missing="fiml")
