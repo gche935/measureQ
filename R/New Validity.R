@@ -139,7 +139,7 @@
 #' measureQ(Model.E, Data_E, cluster="leader")
 #'
 #'
-measureQ <- function(model, data.source, b.no=1000, cluster="NULL", CI="PCI", omega="omegaH", R.decimal=3, HTMT="FALSE") {
+measureQ <- function(model, data.source, b.no=1000, cluster=NULL, CI="PCI", omega="omegaH", R.decimal=3, HTMT="FALSE") {
 
 options("width"=210)
 options(max.print=10000)
@@ -180,7 +180,7 @@ if (CI == "BCCI") {
 #model <- Model.E
 #data.source <- Data_E
 #b.no <- 1000
-#cluster = "NULL"
+#cluster = NULL
 #omega <- "omegaH"
 #HTMT = "TRUE"
 #PCI = "TRUE"
@@ -203,7 +203,7 @@ if (b.no > 5000) stop("Bootstrap sample number greater than 5,000 is not recomme
 if (b.no < 500) stop("Bootstrap sample number smaller than 500 is not recommended")
 
 # Estimate model with MLR
-if (cluster == "NULL") {
+if (is.null(cluster)) {
   Model.EST1 <- lavaan::cfa(model, data.source, meanstructure=TRUE, estimator="MLR", missing="fiml")
 } else {
   Model.EST1 <- lavaan::cfa(model, data.source, meanstructure=TRUE, estimator="MLR", cluster=cluster, missing="fiml")
@@ -290,7 +290,7 @@ SDS[, 4] <- as.numeric(SDS[, 4])
 par.est <- as.numeric(SDS[, 4])
 
 # Reorder data.source according to observed variable names
-if (cluster == "NULL") {
+if (is.null(cluster)) {
   data.source <- data.source[, names.ov]
   } else {
   data.source <- data.source[, c(names.ov, cluster)]
@@ -406,25 +406,11 @@ Model.EST2 <- suppressWarnings(lavaan::cfa(model, data = data.source, cluster=cl
 
 # ===== Bootstrapping
 if (.Platform$OS.type == "windows") {
-#  if (cluster == "NULL") {
-#    # Nonparametric Bootstrapping
-    bootcoef <- lavaan::bootstrapLavaan(Model.EST2, R = b.no, FUN = myFUN, parallel="snow",
-                                        ncpus = max(2L, parallel::detectCores(logical = FALSE) - 2L, na.rm = TRUE))
-#  } else {
-#    # Parametric Bootstrapping when cluster != "NULL"
-#    bootcoef <- lavaan::bootstrapLavaan(Model.EST2, R = b.no, FUN = myFUN, parallel="snow",
-#                                        ncpus = max(2L, parallel::detectCores(logical = FALSE) - 2L, na.rm = TRUE), type = "parametric")
-#  }
+  bootcoef <- lavaan::bootstrapLavaan(Model.EST2, R = b.no, FUN = myFUN, parallel="snow",
+                                      ncpus = max(2L, parallel::detectCores(logical = FALSE) - 2L, na.rm = TRUE))
 } else { #macOS
-#  if (cluster == "NULL") {
-#    # Nonparametric Bootstrapping
-    bootcoef <- lavaan::bootstrapLavaan(Model.EST2, R = b.no, FUN = myFUN, parallel="multicore",
-                                        ncpus = max(2L, parallel::detectCores(logical = FALSE) - 2L, na.rm = TRUE))
-#  } else {
-#    # Parametric Bootstrapping when cluster != "NULL"
-#    bootcoef <- lavaan::bootstrapLavaan(Model.EST2, R = b.no, FUN = myFUN, parallel="multicore",
-#                                        ncpus = max(2L, parallel::detectCores(logical = FALSE) - 2L, na.rm = TRUE), type = "parametric")
-#  }
+  bootcoef <- lavaan::bootstrapLavaan(Model.EST2, R = b.no, FUN = myFUN, parallel="multicore",
+                                      ncpus = max(2L, parallel::detectCores(logical = FALSE) - 2L, na.rm = TRUE))
 }
 
 # ===== Remove bootstrap samples with standardized factor loading or correlation larger than 1
