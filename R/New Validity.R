@@ -8,19 +8,19 @@
 #'
 #' Bootstrap percentile and bias-corrected confidence intervals for: construct reliability, standardized factor loadings, Average Variance Extracted (AVE), comparing AVE with square correlation coefficients, and disattenuated correlation.
 #'
-#' 1. The significance tests are based on the type of confidence intervals chosen. 2. Missing values are handled with full-information maximum likelihood. 3. No cross-loading or correlated indicator residuals is allowed. 4. Second-order factors should be defined after all first-order factors in the model. 5. For second-order factor, omegaT shows the overall reliability of the first-order factors, omegaH shows the reliability of the second-order factor. 6. Before generating the outputs, bootstrapped samples with improper solutions (non-convergence, negative variance, and correlation greater than 1) are removed.
+#' 1. The significance tests depend on the type of confidence interval chosen. 2. Missing values are handled with full-information maximum likelihood. 3. No cross-loading is allowed. 4. For second-order factors, omegaT shows the overall reliability of the first-order factors, and omegaH shows the reliability of the second-order factor. 5. Before generating the outputs, bootstrapped samples with improper solutions (non-convergence, negative variance, and correlation greater than 1) are removed.
 #'
-#' Citation: Cheung, G. W., Cooper-Thomas, H. D., Lau, R.S., & Wang, L. C. (2023). Reporting reliability, convergent and discriminant validity with structural equation modeling: A review and best-practice recommendations. Asia Pacific Journal of Management, 41(2), 745-783. DOI: 10.1007/s10490-023-09871-y
+#' Citation: Cheung, G. W., Cooper-Thomas, H. D., Lau, R.S., & Wang, L. C. (2024). Reporting reliability, convergent and discriminant validity with structural equation modeling: A review and best-practice recommendations. Asia Pacific Journal of Management, 41(2), 745-783. DOI: 10.1007/s10490-023-09871-y
 #'
 #'
-#' @param model User specified CFA model
+#' @param model User-specified CFA model
 #' @param data.source A data frame containing the observed variables used in the model.
 #' @param b.no Number of bootstrap samples, must be between 200 and 5,000. Default is 1,000.
 #' @param cluster Cluster variable for nested data. Parametric bootstrapping instead of non-parametric bootstrapping will be conducted for nested data.
-#' @param CI Confidence intervals will be used in the outputs. If "PCI", percentile confidence intervals will be used (default). If "BCCI", biased-corrected confidence intervals will be used.
-#' @param omega Type of omega used for construct reliability of second-order construct. If "omegaH", omega Hierarchical (default) will be used. If "omegaT", omega Total will be used.
+#' @param CI Confidence intervals will be used in the outputs. If "PCI", percentile confidence intervals will be used (default). If "BCCI" is specified, bias-corrected confidence intervals will be used.
+#' @param omega Type of omega used for construct reliability of second-order construct. If "omegaH", omega Hierarchical (default) will be used. If "omegaT", then "omega Total" will be used.
 #' @param R.decimal Number of decimal places in reports. Default is 3.
-#' @param HTMT Heterotrait-monotrait ratio, which is the disattenuated correlation coefficient. Henseler, Ringle, and Sarstedt’s (2015) HTMT equation is incorrect, of which composite is formed by the simple average of standardized item scores instead of the simple average of item scores.
+#' @param HTMT Produce Table 4 for the corrected HeteroTrait-MonoTrait (HTMT)ratio, which is the disattenuated correlation coefficient. Henseler, Ringle, and Sarstedt’s (2015) HTMT equation is incorrect because the composite is calculated as the simple average of standardized item scores rather than the simple average of raw item scores.
 #'
 #' @return measureQ.xlsx with all Tables
 #' @export
@@ -74,8 +74,6 @@
 #' from South Korea. Asia-Pacific Journal of Management, 41, 1285-1312.
 #' http://doi: 10.1007/s10490-022-09856-3
 #'
-#' All second-order factors should be defined after all first-order factors in the model.
-#'
 #' # Specify the model (Model.C) for standardized coefficients
 #' Model.C <- '
 #' PL =~ PL1 + PL2 + PL3 + PL4 + PL5 + PL6
@@ -99,7 +97,6 @@
 #' Data simulated from Way, S. A., Tracey, J. B., Fay, C. H., Wright, P. M., Snell, S. A.,
 #' Chang, S., & Gong, Y. (2015). Validation of a multidimensional HR flexibility measure.
 #' Journal of Management, 41, 1098-1131.
-#' All second-order factors should be defined after all first-order factors in the model.
 #'
 #' # Specify the model (Model.D) for standardized coefficients
 #' Model.D <- '
@@ -121,7 +118,6 @@
 #' (2017). The ripple effect: A spillover model of the detrimental impact of work-family conflict
 #' on job success. Journal of Organizational Behavior, 38, 876-894.
 #'
-#' All second-order factors should be defined after all first-order factors in the model.
 #' The data are nested within the cluster variable = "leader"
 #'
 #' # Specify the model (Model.E) for standardized coefficients
@@ -497,6 +493,7 @@ for (factor.no in 1:no.factor) {
   }
 }
 
+
 # ============= Generate simple average score and Cronbach's alpha of summated scales (SCA) ================ #
 
 SCA <- matrix(0, no.factor)
@@ -507,44 +504,13 @@ for (factor.no in 1:no.factor) {
     data.source[, names.lv[factor.no]] <- data.source[, SDS[cols,"rhs"]]
     SCA[factor.no] <- SCR[factor.no]
   } else {
-    cols <- which(SDS["lhs"] == names.lv[factor.no] & SDS["op"] == "=~")
-    data.source[, names.lv[factor.no]] <- rowMeans(data.source[, SDS[cols,"rhs"]], na.rm = TRUE)
+    cols <- name.items[names.lv[factor.no],]
+    cols <- cols[!is.na(cols)]
+    data.source[, names.lv[factor.no]] <- rowMeans(data.source[, cols], na.rm = TRUE)
     var.item.total <- sum(diag(var(data.source[, cols], na.rm = TRUE)))/(no.items[factor.no]^2)
     SCA[factor.no] <- no.items[factor.no]/(no.items[factor.no] - 1) * (1 - var.item.total/var(data.source[,names.lv[factor.no]], na.rm = TRUE))
   }
 }
-
-if (length(so.lv) > 0) {
-  for (factor.no in 1:no.factor) {
-    if (no.items[factor.no] == 1) {
-      cols <- which(SDS["lhs"] == names.lv[factor.no] & SDS["op"] == "=~")
-      data.source[, names.lv[factor.no]] <- data.source[, SDS[cols,"rhs"]]
-      SCA[factor.no] <- SCR[factor.no]
-    } else {
-      if (names.lv[(factor.no)] %in% so.lv) {
-        no.items.so.lv <- sum(SDS[,"lhs"] == names.lv[factor.no] & SDS[,"op"] == "=~")
-        NI <- c(1:no.items.so.lv) # number of items in first order factor
-        yyy <- SDS[which(SDS["lhs"] == names.lv[factor.no] & SDS["op"] == "=~"), "rhs"]
-        for (r in 1: no.items.so.lv) {
-          if (r == 1) {
-            zzz <- which(SDS["lhs"] == yyy[r] & SDS["op"] == "=~")
-          } else {
-            zzz <- c(zzz, which(SDS["lhs"] == yyy[r] & SDS["op"] == "=~"))
-          }
-        }
-        data.source[, names.lv[factor.no]] <- rowMeans(data.source[, SDS[zzz,"rhs"]], na.rm = TRUE)
-        var.item.total <- sum(diag(var(data.source[, zzz], na.rm = TRUE)))/(length(zzz)^2)
-        SCA[factor.no] <- length(zzz)/(length(zzz) - 1) * (1 - var.item.total/var(data.source[,names.lv[factor.no]], na.rm = TRUE))
-      } else {
-        cols <- which(SDS["lhs"] == names.lv[factor.no] & SDS["op"] == "=~")
-        data.source[, names.lv[factor.no]] <- rowMeans(data.source[, SDS[cols,"rhs"]], na.rm = TRUE)
-        var.item.total <- sum(diag(var(data.source[, cols], na.rm = TRUE)))/(no.items[factor.no]^2)
-        SCA[factor.no] <- no.items[factor.no]/(no.items[factor.no] - 1) * (1 - var.item.total/var(data.source[,names.lv[factor.no]], na.rm = TRUE))
-      }
-    }
-  }
-}
-
 
 # ======================================================================= #
 
@@ -560,7 +526,6 @@ for (r in 1:tot.lv.cor) {
   SDV[r, 3] <- SAVE[factor.a] - as.numeric(COR.lv[r, 4])^2
   SDV[r, 4] <- SAVE[factor.b] - as.numeric(COR.lv[r, 4])^2
 }
-
 
 # ==================================================================================== #
 
