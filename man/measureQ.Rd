@@ -8,7 +8,7 @@ measureQ(
   model,
   data.source,
   b.no = 1000,
-  cluster = "NULL",
+  cluster = NULL,
   CI = "PCI",
   omega = "omegaH",
   R.decimal = 3,
@@ -39,7 +39,7 @@ measureQ.xlsx with all Tables
 Bootstrap percentile and bias-corrected confidence intervals for: construct reliability, standardized factor loadings, Average Variance Extracted (AVE), comparing AVE with square correlation coefficients, and disattenuated correlation.
 }
 \details{
-1. The significance tests depend on the type of confidence interval chosen. 2. Missing values are handled with full-information maximum likelihood. 3. No cross-loading is allowed. 4. For second-order factors, omegaT shows the overall reliability of the first-order factors, and omegaH shows the reliability of the second-order factor. 5. Before generating the outputs, bootstrapped samples with improper solutions (non-convergence, negative variance, and correlation greater than 1) are removed.
+1. The significance tests depend on the type of confidence interval chosen. 2. Missing values are handled with full-information maximum likelihood. 3. No cross-loading and correlated item residuals are allowed. 4. For second-order factors, omegaT shows the overall reliability of the first-order factors, and omegaH shows the reliability of the second-order factor. 5. Before generating the outputs, bootstrapped samples with improper solutions (non-convergence, negative variance, and correlation greater than 1) are removed.
 
 Citation: Cheung, G. W., Cooper-Thomas, H. D., Lau, R.S., & Wang, L. C. (2024). Reporting reliability, convergent and discriminant validity with structural equation modeling: A review and best-practice recommendations. Asia Pacific Journal of Management, 41(2), 745-783. DOI: 10.1007/s10490-023-09871-y
 }
