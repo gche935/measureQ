@@ -22,7 +22,7 @@ measureQ(
 
 \item{b.no}{Number of bootstrap samples, must be between 200 and 5,000. Default is 1,000.}
 
-\item{cluster}{Cluster variable for nested data. Parametric bootstrapping instead of non-parametric bootstrapping will be conducted for nested data.}
+\item{cluster}{Cluster variable for nested data. Bootstrapping will be conducted on whole clusters rather than individual observations with nested data.}
 
 \item{CI}{Confidence intervals will be used in the outputs. If "PCI", percentile confidence intervals will be used (default). If "BCCI" is specified, bias-corrected confidence intervals will be used.}
 

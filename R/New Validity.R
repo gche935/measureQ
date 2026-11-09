@@ -16,7 +16,7 @@
 #' @param model User-specified CFA model
 #' @param data.source A data frame containing the observed variables used in the model.
 #' @param b.no Number of bootstrap samples, must be between 200 and 5,000. Default is 1,000.
-#' @param cluster Cluster variable for nested data. Parametric bootstrapping instead of non-parametric bootstrapping will be conducted for nested data.
+#' @param cluster Cluster variable for nested data. Bootstrapping will be conducted on whole clusters rather than individual observations with nested data.
 #' @param CI Confidence intervals will be used in the outputs. If "PCI", percentile confidence intervals will be used (default). If "BCCI" is specified, bias-corrected confidence intervals will be used.
 #' @param omega Type of omega used for construct reliability of second-order construct. If "omegaH", omega Hierarchical (default) will be used. If "omegaT", then "omega Total" will be used.
 #' @param R.decimal Number of decimal places in reports. Default is 3.
@@ -402,29 +402,29 @@ if (HTMT == "TRUE"){
 }
 
 # ===== Simplified bootstrapping model
-Model.EST2 <- lavaan::cfa(model, data = data.source, missing = "fiml", se = "none", test = "none", check.start = FALSE, check.post = FALSE, check.gradient = FALSE)
+Model.EST2 <- suppressWarnings(lavaan::cfa(model, data = data.source, cluster=cluster, missing = "fiml", se = "none", test = "none", check.start = FALSE, check.post = FALSE, check.gradient = FALSE))
 
 # ===== Bootstrapping
 if (.Platform$OS.type == "windows") {
-  if (cluster == "NULL") {
-    # Nonparametric Bootstrapping
+#  if (cluster == "NULL") {
+#    # Nonparametric Bootstrapping
     bootcoef <- lavaan::bootstrapLavaan(Model.EST2, R = b.no, FUN = myFUN, parallel="snow",
                                         ncpus = max(2L, parallel::detectCores(logical = FALSE) - 2L, na.rm = TRUE))
-  } else {
-    # Parametric Bootstrapping when cluster != "NULL"
-    bootcoef <- lavaan::bootstrapLavaan(Model.EST2, R = b.no, FUN = myFUN, parallel="snow",
-                                        ncpus = max(2L, parallel::detectCores(logical = FALSE) - 2L, na.rm = TRUE), type = "parametric")
-  }
+#  } else {
+#    # Parametric Bootstrapping when cluster != "NULL"
+#    bootcoef <- lavaan::bootstrapLavaan(Model.EST2, R = b.no, FUN = myFUN, parallel="snow",
+#                                        ncpus = max(2L, parallel::detectCores(logical = FALSE) - 2L, na.rm = TRUE), type = "parametric")
+#  }
 } else { #macOS
-  if (cluster == "NULL") {
-    # Nonparametric Bootstrapping
+#  if (cluster == "NULL") {
+#    # Nonparametric Bootstrapping
     bootcoef <- lavaan::bootstrapLavaan(Model.EST2, R = b.no, FUN = myFUN, parallel="multicore",
                                         ncpus = max(2L, parallel::detectCores(logical = FALSE) - 2L, na.rm = TRUE))
-  } else {
-    # Parametric Bootstrapping when cluster != "NULL"
-    bootcoef <- lavaan::bootstrapLavaan(Model.EST2, R = b.no, FUN = myFUN, parallel="multicore",
-                                        ncpus = max(2L, parallel::detectCores(logical = FALSE) - 2L, na.rm = TRUE), type = "parametric")
-  }
+#  } else {
+#    # Parametric Bootstrapping when cluster != "NULL"
+#    bootcoef <- lavaan::bootstrapLavaan(Model.EST2, R = b.no, FUN = myFUN, parallel="multicore",
+#                                        ncpus = max(2L, parallel::detectCores(logical = FALSE) - 2L, na.rm = TRUE), type = "parametric")
+#  }
 }
 
 # ===== Remove bootstrap samples with standardized factor loading or correlation larger than 1
